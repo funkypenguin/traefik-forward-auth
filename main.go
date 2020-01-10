@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"crypto/tls"
 	"net/url"
 	"path"
 	"strings"
@@ -149,7 +150,7 @@ func getOidcConfig(oidc string) map[string]interface{} {
 	uri.Path = path.Join(uri.Path, "/.well-known/openid-configuration")
 	res, err := http.Get(uri.String())
 	if err != nil {
-		log.Fatal("failed to get oidc parametere from oidc connect")
+		log.Fatal("failed to get oidc parameter from oidc connect")
 	}
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
@@ -182,11 +183,18 @@ func main() {
 	prompt := flag.String("prompt", "", "Space separated list of OpenID prompt options")
 	logLevel := flag.String("log-level", "warn", "Log level: trace, debug, info, warn, error, fatal, panic")
 	logFormat := flag.String("log-format", "text", "Log format: text, json, pretty")
+	insecure := flag.Bool("insecure", false, "Disable SSL certificate verification")
 
 	flag.Parse()
 
 	// Setup logger
 	log = CreateLogger(*logLevel, *logFormat)
+
+	// Check if insecureSkipVerify
+	if *insecure {
+	    log.Debug("Disabling SSL certificate verification!! Use with caution!!")
+	    http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	}
 
 	// Backwards compatibility
 	if *secret == "" && *cookieSecret != "" {
