@@ -29,4 +29,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix nocgo -o /traefik-forwar
 FROM alpine
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /traefik-forward-auth ./
+ADD LE.crt /etc/ssl/certs/
+RUN cat /etc/ssl/certs/LE.crt >> /etc/ssl/certs/ca-certificates.crt
+EXPOSE 4181
 ENTRYPOINT ["./traefik-forward-auth"]
