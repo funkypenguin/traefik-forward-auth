@@ -20,6 +20,8 @@ RUN apk add --no-cache git && \
   go get "github.com/namsral/flag" && \
   go get "github.com/sirupsen/logrus" && \
   apk del git
+  
+RUN apk update && apk add ca-certificates && rm -rf /var/cache/apk/*
 
 # Copy & build
 ADD . /app/
